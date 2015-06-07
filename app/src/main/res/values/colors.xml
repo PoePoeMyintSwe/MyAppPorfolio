@@ -5,5 +5,10 @@
   <color name="green">#4CAF50</color>
   <color name="green_dark">#388E3C</color>
   <color name="primary_text">#212121</color>
+  <color name="secondary_text">#727272</color>
   <color name="background">#ffdfeaf1</color>
+
+  <color name="primary">@color/yellow</color>
+  <color name="primary_dark">@color/yellow_dark</color>
+  <color name="accent">@color/green</color>
 </resources>
