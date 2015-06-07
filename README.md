@@ -1,2 +1,2 @@
-# MyAppPorfolio 
-This repor aimed for Udacity Android Nanodegree course
+# MyAppPortfolio
+This repo aimed for Udacity Android Nanodegree course
