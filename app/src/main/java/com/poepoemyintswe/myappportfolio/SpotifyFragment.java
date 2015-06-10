@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import com.poepoemyintswe.myappportfolio.adapter.ArtistAdapter;
 import java.util.concurrent.TimeUnit;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -32,6 +33,7 @@ public class SpotifyFragment extends Fragment {
   @InjectView(R.id.artist_search) EditText mEditText;
   @InjectView(R.id.artist_list) RecyclerView mRecyclerView;
   private SpotifyService spotifyService;
+  private ArtistAdapter artistAdapter;
 
   public SpotifyFragment() {
   }
@@ -39,15 +41,19 @@ public class SpotifyFragment extends Fragment {
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     spotifyService = new SpotifyApi().getService();
+    artistAdapter = new ArtistAdapter();
   }
 
   @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_spotify, container, false);
     ButterKnife.inject(this, view);
-    mRecyclerView.setLayoutManager(
-        new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+    LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+    layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+    mRecyclerView.setLayoutManager(layoutManager);
+    mRecyclerView.setAdapter(artistAdapter);
     rxEdit();
+
     return view;
   }
 
@@ -63,23 +69,22 @@ public class SpotifyFragment extends Fragment {
         .subscribe(new Action1<OnTextChangeEvent>() {
           @Override public void call(OnTextChangeEvent onTextChangeEvent) {
             Log.d("edit text", onTextChangeEvent.text().toString());
+            spotifyService.searchArtists(onTextChangeEvent.text().toString(),
+                new Callback<ArtistsPager>() {
+                  @Override
+                  public void success(final ArtistsPager artistsPager, Response response) {
+                    getActivity().runOnUiThread(new Runnable() {
+                      @Override public void run() {
+                        artistAdapter.setArtists(artistsPager.artists.items);
+                      }
+                    });
+                  }
+
+                  @Override public void failure(RetrofitError retrofitError) {
+
+                  }
+                });
           }
         });
-  }
-
-  @Override public void onActivityCreated(Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-  }
-
-  private void search(String s) {
-    spotifyService.searchArtists(s, new Callback<ArtistsPager>() {
-      @Override public void success(ArtistsPager artistsPager, Response response) {
-
-      }
-
-      @Override public void failure(RetrofitError retrofitError) {
-
-      }
-    });
   }
 }
